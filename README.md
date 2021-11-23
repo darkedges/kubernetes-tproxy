@@ -39,7 +39,7 @@ cd -
 2. Run the example app:
 
 ```sh
-kubectl apply -f examples/debian-locked-manual.yaml
+kubectl apply -f examples/debian-app-locked-manual.yaml
 ```
 
 3. Inspect the logs:
