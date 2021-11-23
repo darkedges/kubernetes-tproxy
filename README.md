@@ -1,5 +1,7 @@
 # Kubernetes Transparent Proxy
 
+ ! This fork contains changes which make the deployment incompatible with Kubernetes older than 1.17
+
 Transparent proxy and filtering for Kubernetes pods.
 
 This project provides transparent proxy to pods using two deployment scenarios:
