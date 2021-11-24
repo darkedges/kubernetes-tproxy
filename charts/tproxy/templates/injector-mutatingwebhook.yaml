@@ -1,0 +1,40 @@
+{{- if .Capabilities.APIVersions.Has "admissionregistration.k8s.io/v1" }}
+apiVersion: admissionregistration.k8s.io/v1
+{{- else }}
+apiVersion: admissionregistration.k8s.io/v1beta1
+{{- end }}
+kind: MutatingWebhookConfiguration
+metadata:
+  name: {{ template "tproxy.fullname" . }}
+  labels:
+    app: {{ template "tproxy.name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+    component: sidecar-injector-webhook
+webhooks:
+  - name: {{ template "tproxy.fullname" . }}.webhook.me
+    sideEffects: None
+    admissionReviewVersions: ["v1beta1", "v1"]
+    clientConfig:
+      service:
+        name: {{ template "tproxy.name" . }}-sidecar-injector-webhook-svc
+        namespace: sidecar-injector
+        path: "/mutate"
+      caBundle: "{{ .Files.Get "config/cluster-ca-cert.txt" }}"
+    rules:
+      - operations: ["CREATE", "UPDATE"]
+        apiGroups: [""]
+        apiVersions: ["v1"]
+        resources: ["pods"]
+{{- if .Values.injector.namespaceSelector }}
+    namespaceSelector:
+{{ toYaml .Values.injector.namespaceSelector | indent 6}}
+{{ end }}
+{{- if .Values.injector.objectSelector }}
+    objectSelector:
+{{ toYaml .Values.injector.objectSelector | indent 6}}
+{{ end }}
+{{- with .Values.injector.failurePolicy }}
+    failurePolicy: {{.}}
+{{ end }}

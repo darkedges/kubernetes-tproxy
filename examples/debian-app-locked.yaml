@@ -2,8 +2,9 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: debian-app-locked
-  annotations:
-    "initializer.kubernetes.io/tproxy": "true"
+#  annotations:
+  labels:
+    mitmproxy-sidecar-injector: enabled
 spec:
   replicas: 1
   selector:

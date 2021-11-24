@@ -8,7 +8,6 @@ images:
 
 tproxy:
   useRBAC: false
-  useInitializer: false
   hostPort: 8080
   addStandardModeProxy: false
   # blockSvcCIDR: 10.11.240.0/20
@@ -20,3 +19,38 @@ tproxy:
     requests:
       cpu: 100m
       memory: 128Mi
+
+injector:
+  # True if you want to enable mitmproxy sidecar injection.
+  enabled: true
+
+  # namespaceSelector is the selector for restricting the webhook to only
+  # specific namespaces.
+  # See https://kubernetes.io/docs/reference/access-authn-authz/extensible-admission-controllers/#matching-requests-namespaceselector
+  # for more details.
+  # Example:
+  # namespaceSelector:
+  #    matchLabels:
+  #      sidecar-injector: enabled
+  namespaceSelector:
+    matchLabels:
+      sidecar-injector: enabled
+
+  # objectSelector is the selector for restricting the webhook to only
+  # specific labels.
+  # See https://kubernetes.io/docs/reference/access-authn-authz/extensible-admission-controllers/#matching-requests-objectselector
+  # for more details.
+  # Example:
+  # objectSelector:
+  #    matchLabels:
+  #      mitmproxy-sidecar-injector: enabled
+  objectSelector:
+    matchLabels:
+      mitmproxy-sidecar-injector: enabled
+
+  # Configures failurePolicy of the webhook. The "unspecified" default behaviour deoends on the
+  # API Version of the WebHook.
+  # To block pod creation while webhook is unavailable, set the policy to `Fail` below.
+  # See https://kubernetes.io/docs/reference/access-authn-authz/extensible-admission-controllers/#failure-policy
+  #
+  failurePolicy: Fail
