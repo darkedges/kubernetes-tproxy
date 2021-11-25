@@ -1,0 +1,9 @@
+FROM golang:1.17
+
+WORKDIR /go/src/app
+COPY ./cmd/tproxy-webhook/ .
+
+RUN go get -d -v ./...
+RUN go install -v ./...
+
+ENTRYPOINT ["/go/bin/tproxy-webhook"]

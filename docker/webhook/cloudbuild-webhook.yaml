@@ -1,0 +1,11 @@
+steps:
+- name: 'gcr.io/cloud-builders/go:alpine'
+  args: ['get', './...']
+  env: ["PROJECT_ROOT=github.com/horodchukanton/kubernetes-tproxy"]
+- name: 'gcr.io/cloud-builders/go:alpine'
+  args: ['install', './cmd/tproxy-webhook/']
+  env: ["PROJECT_ROOT=github.com/horodchukanton/kubernetes-tproxy"]
+- name: 'gcr.io/cloud-builders/docker'
+  args: [ 'build', '-f', 'docker/webhook/Dockerfile-webhook', '-t', 'gcr.io/$PROJECT_ID/tproxy-webhook:0.1.0', '.' ]
+images:
+- 'gcr.io/$PROJECT_ID/tproxy-webhook:0.1.0'

@@ -1,17 +1,16 @@
+{{- if .Values.injector.enabled }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: {{ template "tproxy.fullname" . }}-injector-webhook-configmap
-  namespace: sidecar-injector
+  namespace: {{ .Release.Namespace }}
   labels:
     app: {{ template "tproxy.name" . }}
     chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
     component: sidecar-injector-webhook
-
 data:
-  {{- if .Values.injector.enabled }}
   sidecarconfig.yaml: |
     containers:
     - name: sidecar-mitmproxy

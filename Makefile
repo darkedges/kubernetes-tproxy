@@ -1,11 +1,18 @@
-images: image-sidecar image-initializer image-podwatch
+images-local: image-sidecar-local image-webhook-local
+images: image-sidecar image-webhook
 
 image-sidecar:
-	cd sidecar && \
+	cd docker/sidecar && \
 	gcloud container builds submit --config cloudbuild.yaml .
 
-image-initializer:
-	gcloud container builds submit --config cloudbuild-initializer.yaml .
+image-webhook:
+	cd docker/webhook && \
+	gcloud container builds submit --config cloudbuild-webhook.yaml .
 
-image-podwatch:
-	gcloud container builds submit --config cloudbuild-podwatch.yaml .
+image-sidecar-local:
+	docker build -t horodchukanton/tproxy-sidecar -f docker/sidecar/Dockerfile-sidecar.local .
+	docker push horodchukanton/tproxy-sidecar
+
+image-webhook-local:
+	docker build -t horodchukanton/tproxy-webhook -f docker/webhook/Dockerfile-webhook.local .
+	docker push horodchukanton/tproxy-webhook

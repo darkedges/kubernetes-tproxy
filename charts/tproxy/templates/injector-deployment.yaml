@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ template "tproxy.fullname" . }}-injector-webhook-deployment
-  namespace: sidecar-injector
+  namespace: {{ .Release.Namespace }}
   labels:
     app: {{ template "tproxy.name" . }}-injector
     component: sidecar-injector-webhook

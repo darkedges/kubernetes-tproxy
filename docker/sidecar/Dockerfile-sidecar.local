@@ -1,0 +1,7 @@
+FROM alpine:3.15
+
+RUN apk add --update iptables curl bash
+COPY docker/sidecar/start.sh /start.sh
+RUN chmod +x /start.sh
+
+ENTRYPOINT ["/start.sh"]

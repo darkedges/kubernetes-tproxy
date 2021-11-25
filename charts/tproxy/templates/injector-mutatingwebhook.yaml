@@ -19,7 +19,7 @@ webhooks:
     clientConfig:
       service:
         name: {{ template "tproxy.name" . }}-sidecar-injector-webhook-svc
-        namespace: sidecar-injector
+        namespace: {{ .Release.Namespace }}
         path: "/mutate"
       caBundle: "{{ .Files.Get "config/cluster-ca-cert.txt" }}"
     rules:
