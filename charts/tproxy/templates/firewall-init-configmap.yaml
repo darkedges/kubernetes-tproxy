@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "tproxy.fullname" . }}-init-firewall-configmap
+  labels:
+    app: "{{ template "tproxy.name" . }}"
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
+    release: "{{ .Release.Name }}"
+    heritage: "{{ .Release.Service }}"
+    component: tproxy-init
+data:
+  init-firewall.sh: |
+{{ .Files.Get "config/init-firewall.sh" | indent 4 }}

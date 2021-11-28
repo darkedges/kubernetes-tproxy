@@ -1,7 +1,8 @@
+{{- if .Values.tproxy.addStandardModeProxy }}
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
-  name: {{ template "tproxy.fullname" . }}
+  name: {{ template "tproxy.fullname" . }}-mitmproxy
   labels:
     app: {{ template "tproxy.name" . }}
     chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
@@ -11,13 +12,13 @@ metadata:
 spec:
   selector:
     matchLabels:
-      app: {{ template "tproxy.name" . }}
+      app: {{ template "tproxy.name" . }}-mitmproxy
       release: {{ .Release.Name }}
       component: tproxy
   template:
     metadata:
       labels:
-        app: {{ template "tproxy.name" . }}
+        app: {{ template "tproxy.name" . }}-mitmproxy
         release: {{ .Release.Name }}
         component: tproxy
     spec:
@@ -40,10 +41,11 @@ spec:
             - mitmdump
             - '-p'
             - '{{ .Values.tproxy.hostPort }}'
-            - '-T'
-            - '--host'
-            - '--insecure'
-            - '--stream'
+            - '--mode'
+            - 'transparent'
+            - '--ssl-insecure'
+            - '--set'
+            - 'stream-large-bodies=true'
             - '4096'
             - '-s'
             - /opt/mitmproxy-scripts/mitm-script.py
@@ -69,3 +71,5 @@ spec:
     rollingUpdate:
       maxUnavailable: 1
     type: RollingUpdate
+
+{{- end }}

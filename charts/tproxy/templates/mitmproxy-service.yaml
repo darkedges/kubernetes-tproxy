@@ -1,0 +1,19 @@
+{{- if .Values.tproxy.addStandardModeProxy }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "tproxy.name" . }}-mitmproxy-svc
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: {{ template "tproxy.name" . }}-mitmproxy-svc
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+    component: sidecar-injector-webhook
+spec:
+  ports:
+    - port: 1080
+      targetPort: 8080
+  selector:
+    app: {{ template "tproxy.name" . }}-mitmproxy
+  {{- end }}

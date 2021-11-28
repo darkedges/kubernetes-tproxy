@@ -10,16 +10,61 @@ spec:
   template:
     metadata:
       annotations:
-        # The podspec annotation is still needed by the podwatch controller.
-        "initializer.kubernetes.io/tproxy": "true"
       labels:
         app: debian-app
         variant: locked
     spec:
-      initContainers:
-        - name: tproxy
-          image: danisla/tproxy-sidecar:0.1.0
+      containers:
+        - name: app
+          image: danisla/example-app:debian
           imagePullPolicy: IfNotPresent
+          volumeMounts:
+            - name: ca-certs-debian
+              mountPath: /etc/ssl/certs/
+            - name: ca-certs-debian
+              # Adding the cert to the /extra dir preserves it if update-ca-certificates is run after init.
+              mountPath: /usr/local/share/ca-certificates/extra/
+        - name: mitmproxy
+          image: horodchukanton/tproxy-mitmproxy
+          imagePullPolicy: Always
+          tty: true
+          securityContext:
+            runAsGroup: 1337
+            runAsNonRoot: true
+            runAsUser: 1337
+            allowPrivilegeEscalation: false
+            capabilities:
+              add:
+              - NET_ADMIN
+              - NET_RAW
+              drop:
+              - ALL
+          command:
+            - mitmdump
+            - '-p'
+            - '1080'
+            - '--mode'
+            - 'transparent'
+            - '--ssl-insecure'
+            - '--showhost'
+            - '--set'
+            - 'confdir=/home/mitmproxy/.mitmproxy'
+            - '--set'
+            - 'stream-large-bodies=true'
+            - '-s'
+            - /opt/mitmproxy-scripts/mitm-script.py
+          env:
+            - name: "REMOTE_SERVER"
+              value: "https://gl-ss-testenv-api.int.testenv.gl-k8s.com"
+          volumeMounts:
+            - name: mitmproxy-certs
+              mountPath: /home/mitmproxy/.mitmproxy
+            - name: app-data
+              mountPath: /opt/mitmproxy-scripts/
+      initContainers:
+        - name: firewall-init
+          image: horodchukanton/tproxy-firewall:latest
+          imagePullPolicy: Always
           securityContext:
             privileged: true
           resources:
@@ -29,20 +74,29 @@ spec:
             requests:
               cpu: 100m
               memory: 64Mi
-      containers:
-        - name: app
-          image: danisla/example-app:debian
-          imagePullPolicy: Always
           volumeMounts:
-            - name: ca-certs-debian
-              mountPath: /etc/ssl/certs/
-            - name: ca-certs-debian
-              # Adding the cert to the /extra dir preserves it if update-ca-certificates is run after init.
-              mountPath: /usr/local/share/ca-certificates/extra/
+            - name: firewall-rules
+              mountPath: /tmp/firewall/
       volumes:
         - name: ca-certs-debian
           configMap:
-            name: tproxy-tproxy-root-certs
+            name: webhook-tproxy-root-certs
             items:
               - key: root-certs.crt
                 path: ca-certificates.crt
+        - name: mitmproxy-certs
+          secret:
+            secretName: webhook-tproxy-mitmproxy-certs
+        - name: app-data
+          configMap:
+            name: webhook-tproxy-mitmproxy-configmap
+            items:
+              - key: mitm-script.py
+                path: mitm-script.py
+        - name: firewall-rules
+          configMap:
+           name: webhook-tproxy-init-firewall-configmap
+           defaultMode: 0777
+           items:
+            - key: init-firewall.sh
+              path: start.sh

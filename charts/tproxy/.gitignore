@@ -1,1 +1,3 @@
 certs/
+cluster-ca-cert.txt
+certs/*

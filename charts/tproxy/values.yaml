@@ -1,10 +1,10 @@
 images:
-  tproxy_registry: docker.io/danisla
+  tproxy_registry: docker.io/horodchukanton
   pullPolicy: IfNotPresent
-  mitmproxy: mitmproxy/mitmproxy:2.0.2
-  tproxy_initializer: tproxy-initializer:0.1.0
-  tproxy_podwatch: tproxy-podwatch:0.1.0
-  tproxy_sidecar: tproxy-sidecar:0.1.0
+  mitmproxy: horodchukanton/tproxy-mitmproxy
+#  tproxy_initializer: tproxy-initializer:0.1.0
+#  tproxy_podwatch: tproxy-podwatch:0.1.0
+#  tproxy_sidecar: tproxy-sidecar:0.1.0
 
 tproxy:
   useRBAC: false
@@ -48,7 +48,7 @@ injector:
     matchLabels:
       mitmproxy-sidecar-injector: enabled
 
-  # Configures failurePolicy of the webhook. The "unspecified" default behaviour deoends on the
+  # Configures failurePolicy of the webhook. The "unspecified" default behaviour depends on the
   # API Version of the WebHook.
   # To block pod creation while webhook is unavailable, set the policy to `Fail` below.
   # See https://kubernetes.io/docs/reference/access-authn-authz/extensible-admission-controllers/#failure-policy
