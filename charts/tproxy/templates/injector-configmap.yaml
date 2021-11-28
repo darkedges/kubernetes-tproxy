@@ -12,47 +12,67 @@ metadata:
     component: sidecar-injector-webhook
 data:
   sidecarconfig.yaml: |
+    initContainers:
+      - name: firewall-init
+        image: {{ .Values.images.tproxyRegistry }}/{{ .Values.images.initFirewall }}
+        imagePullPolicy: Always
+        securityContext:
+          privileged: true
+        resources:
+          limits:
+            cpu: 500m
+            memory: 128Mi
+          requests:
+            cpu: 100m
+            memory: 64Mi
+        volumeMounts:
+          - name: firewall-rules
+            mountPath: /tmp/firewall/
     containers:
-    - name: sidecar-mitmproxy
-      image: mitmproxy/mitmproxy:2.0.2
-      imagePullPolicy: IfNotPresent
-      securityContext:
-        privileged: true
-      env:
-{{- if .Values.tproxy.blockSvcCIDR }}
-        - name: BLOCK_SVC_CIDR
-          value: "{{ .Values.tproxy.blockSvcCIDR }}"
-{{- end }}
-{{- if .Values.tproxy.allowDNS }}
-        - name: ALLOW_DNS
-          value: "{{ .Values.tproxy.allowDNS }}"
-{{- end }}
-{{- if .Values.tproxy.addStandardModeProxy }}
-        - name: NODE_NAME
-          valueFrom:
-            fieldRef:
-              fieldPath: spec.nodeName
-{{- end }}
-      resources:
-        limits:
-          cpu: 500m
-          memory: 128Mi
-        requests:
-          cpu: 100m
-          memory: 64Mi
-    volumes:
-      - name: ca-certs-fedora
-        configMap:
-            name: {{ template "tproxy.fullname" . }}-root-certs
-            items:
-              - key: root-certs.crt
-                path: ca-bundle.crt
-      - name: ca-certs-debian
-        configMap:
-            name: {{ template "tproxy.fullname" . }}-root-certs
-            items:
-              - key: root-certs.crt
-                path: ca-certificates.crt
+      - name: mitmproxy-outbound
+        image: {{ .Values.images.tproxyRegistry }}/{{ .Values.images.mitmproxy }}
+        imagePullPolicy: Always
+        tty: true
+        securityContext:
+          runAsGroup: 1337
+          runAsNonRoot: true
+          runAsUser: 1337
+          allowPrivilegeEscalation: false
+          capabilities:
+            add:
+              - NET_ADMIN
+              - NET_RAW
+            drop:
+              - ALL
+        command:
+          - mitmdump
+          - '-p'
+          - '1080'
+          - '--mode'
+          - 'transparent'
+          - '--ssl-insecure'
+          - '--showhost'
+          - '--set'
+          - 'confdir=/home/mitmproxy/.mitmproxy'
+          - '--set'
+          - 'stream-large-bodies=true'
+          - '-s'
+          - /opt/mitmproxy-scripts/mitm-script.py
+        env:
+          - name: "REMOTE_SERVER"
+            value: {{ .Values.tproxy.outboundLogEndpoint }}
+        volumeMounts:
+          - name: {{ template "tproxy.fullname" . }}-mitmproxy-certs
+            mountPath: /home/mitmproxy/.mitmproxy
+          - name: app-data
+            mountPath: /opt/mitmproxy-scripts/
+        resources:
+          limits:
+            cpu: 500m
+            memory: 128Mi
+          requests:
+            cpu: 100m
+            memory: 64Mi
     volumeMounts:
       - name: ca-certs-fedora
         mountPath: /etc/pki/tls/certs/
@@ -61,8 +81,37 @@ data:
       - name: ca-certs-debian
         # Adding the cert to the /extra dir preserves it if update-ca-certificates is run after init.
         mountPath: /usr/local/share/ca-certificates/extra/
+    volumes:
+      - name: ca-certs-fedora
+        configMap:
+          name: {{ template "tproxy.fullname" . }}-root-certs
+          items:
+            - key: root-certs.crt
+              path: ca-bundle.crt
+      - name: ca-certs-debian
+        configMap:
+          name: {{ template "tproxy.fullname" . }}-root-certs
+          items:
+            - key: root-certs.crt
+              path: ca-certificates.crt
+      - name: mitmproxy-certs
+        secret:
+          secretName: {{ template "tproxy.fullname" . }}-mitmproxy-certs
+      - name: app-data
+        configMap:
+          name: {{ template "tproxy.fullname" . }}-mitmproxy-configmap
+          items:
+            - key: mitm-script.py
+              path: mitm-script.py
+      - name: firewall-rules
+        configMap:
+          name: {{ template "tproxy.fullname" . }}-init-firewall-configmap
+          defaultMode: 0777
+          items:
+            - key: init-firewall.sh
+              path: start.sh
     envVars:
-{{- if .Values.tproxy.addStandardModeProxy }}
+    {{- if .Values.tproxy.addStandardModeProxy }}
       - name: NODE_NAME
         valueFrom:
           fieldRef:
@@ -71,5 +120,5 @@ data:
         value: $(NODE_NAME):1080
       - name: https_proxy
         value: $(NODE_NAME):1080
-{{- end }}
-{{- end }}
+    {{- end }}
+{{- end}}

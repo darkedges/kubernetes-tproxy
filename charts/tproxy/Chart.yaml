@@ -9,6 +9,7 @@ sources:
 - https://github.com/danisla/kubernetes-tproxy
 - https://github.com/horodchukanton/kubernetes-tproxy
 - https://github.com/tumblr/k8s-sidecar-injector
+- https://github.com/morvencao/kube-mutating-webhook-tutorial
 - https://github.com/istio/istio
 icon: https://secure.gravatar.com/avatar/eed3539f6ce40c5b398509995daf6555.jpg?s=512&r=g&d=mm
 maintainers:
