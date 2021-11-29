@@ -3,7 +3,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: {{ template "tproxy.fullname" . }}-injector-webhook-configmap
-  namespace: {{ .Release.Namespace }}
+  namespace: {{ .Values.injector.injectorNamespace }}
   labels:
     app: {{ template "tproxy.name" . }}
     chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}

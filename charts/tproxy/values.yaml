@@ -21,6 +21,10 @@ tproxy:
       memory: 128Mi
 
 injector:
+  # Namespace where webhook lives
+  injectorNamespace: "injector"
+  controledNamespace: "injection"
+
   # True if you want to enable mitmproxy sidecar injection.
   enabled: true
   namespaceSelector:

@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ template "tproxy.fullname" . }}-injector-webhook-deployment
-  namespace: {{ .Release.Namespace }}
+  namespace: {{ .Values.injector.injectorNamespace }}
   labels:
     app: {{ template "tproxy.name" . }}-injector
     component: sidecar-injector-webhook
@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
         - name: sidecar-injector
-          image: horodchukanton/sidecar-injector:latest
+          image: {{ .Values.images.tproxyRegistry }}/{{ .Values.images.injectorWebhook }}
           imagePullPolicy: IfNotPresent
           args:
             - -sidecarCfgFile=/etc/webhook/config/sidecarconfig.yaml
@@ -27,6 +27,10 @@ spec:
             - -alsologtostderr
             - -v=4
             - 2>&1
+          env:
+            # This is used to control inject status annotation for injector's webhook
+            - name: RELEASE_NAME
+              value: {{ .Release.Name }}
           volumeMounts:
             - name: webhook-certs
               mountPath: /etc/webhook/certs
@@ -36,7 +40,10 @@ spec:
       volumes:
         - name: webhook-certs
           secret:
-            secretName: sidecar-injector-webhook-certs
+            secretName: tproxy-sidecar-injector-webhook-certs
         - name: webhook-config
           configMap:
             name: {{ template "tproxy.fullname" . }}-injector-webhook-configmap
+            items:
+              - key: sidecarconfig.yaml
+                path: sidecarconfig.yaml

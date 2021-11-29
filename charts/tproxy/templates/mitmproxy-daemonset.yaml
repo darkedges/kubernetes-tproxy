@@ -3,6 +3,7 @@ apiVersion: apps/v1
 kind: DaemonSet
 metadata:
   name: {{ template "tproxy.fullname" . }}-mitmproxy
+  namespace: {{ .Values.injector.controledNamespace }}
   labels:
     app: {{ template "tproxy.name" . }}
     chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}

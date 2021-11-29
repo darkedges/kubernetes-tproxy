@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: centos-app-locked
   annotations:
-    "initializer.kubernetes.io/tproxy": "true"
+    "webhook-sidecar-injector-webhook.me/inject": "true"
 spec:
   replicas: 1
   selector:

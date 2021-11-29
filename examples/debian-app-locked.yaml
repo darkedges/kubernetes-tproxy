@@ -2,9 +2,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: debian-app-locked
-#  annotations:
-  labels:
-    mitmproxy-sidecar-injector: enabled
 spec:
   replicas: 1
   selector:
@@ -12,6 +9,8 @@ spec:
       app: debian-app
   template:
     metadata:
+      annotations:
+        "sidecar-injector-webhook.webhook.me/inject": enabled
       labels:
         app: debian-app
         variant: locked

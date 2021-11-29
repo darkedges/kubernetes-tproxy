@@ -3,7 +3,7 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: {{ template "tproxy.fullname" . }}
-  namespace: {{ .Release.Namespace }}
+  namespace: {{ .Values.injector.controledNamespace }}
   labels:
     app: {{ template "tproxy.name" . }}
     chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
