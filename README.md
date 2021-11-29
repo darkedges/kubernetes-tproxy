@@ -24,14 +24,14 @@ Well, the answer is - there's nothing else on internet that works in a modern Ku
 ## Reference
 This is a list of sources I've used to craft this:
 
-# Origin
+### Origin
 - https://github.com/mitmproxy/mitmproxy
 - https://github.com/danisla/kubernetes-tproxy
 
-# Mutating webhook
+### Mutating webhook
 - https://github.com/tumblr/k8s-sidecar-injector
 - https://github.com/morvencao/kube-mutating-webhook-tutorial
 
-# Firewall rules to transparently route the traffic
+### Firewall rules to transparently route the traffic
 - https://github.com/istio/istio
 - https://github.com/istio/istio/wiki/Understanding-IPTables-snapshot
