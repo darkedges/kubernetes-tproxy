@@ -20,3 +20,18 @@ Well, the answer is - there's nothing else on internet that works in a modern Ku
 - Get the mitmproxy certificates to './certs' folder. ``docker run --rm -v ${PWD}/certs/:/home/mitmproxy/.mitmproxy mitmproxy/mitmproxy >/dev/null 2>&1``
 - Deploy the chart as ``helm install webhook .``
 - Run Deployment with annotation _"sidecar-injector-webhook.webhook.me/inject": enabled_ to the 'injection' namespace
+
+## Reference
+This is a list of sources I've used to craft this:
+
+# Origin
+- https://github.com/mitmproxy/mitmproxy
+- https://github.com/danisla/kubernetes-tproxy
+
+# Mutating webhook
+- https://github.com/tumblr/k8s-sidecar-injector
+- https://github.com/morvencao/kube-mutating-webhook-tutorial
+
+# Firewall rules to transparently route the traffic
+- https://github.com/istio/istio
+- https://github.com/istio/istio/wiki/Understanding-IPTables-snapshot
