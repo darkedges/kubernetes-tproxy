@@ -25,7 +25,8 @@ Well, the answer is - there's nothing else on internet that works in a modern Ku
 * Run the script `./webhook-create-signed-cert.sh` to generate webhook service certificate and get the Kubernetes CA bundle.
   `./webhook-create-signed-cert.sh`
 * Get the mitmproxy certificates to './certs' folder.
-  `docker run --rm -v ${PWD}/certs/:/home/mitmproxy/.mitmproxy mitmproxy/mitmproxy >/dev/null 2>&1`
+  `docker run --rm -it -v ${PWD}/certs/:/home/mitmproxy/.mitmproxy -p 8080:8080 mitmproxy/mitmproxy`
+* configure your browser to use the proxy and got to <http://mitm.it/> and click on the `Get mitim-proxy-ca-cert.pem` to download into the `certs` directory.
 * Deploy the chart as
   `helm install webhook .`
 * Run Deployment with annotation *"sidecar-injector-webhook.webhook.me/inject": enabled* to the 'injection' namespace
