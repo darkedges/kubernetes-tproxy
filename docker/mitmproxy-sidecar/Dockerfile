@@ -1,4 +1,4 @@
-FROM mitmproxy/mitmproxy:7.0.4
+FROM mitmproxy/mitmproxy:8.1.1
 
 #RUN python3 -m pip install --user pipx
 #RUN python3 -m pipx ensurepath
