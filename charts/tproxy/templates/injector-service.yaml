@@ -2,6 +2,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: {{ template "tproxy.name" . }}-sidecar-injector-webhook-svc
+  namespace: {{ .Values.injector.injectorNamespace }}
   labels:
     app: {{ template "tproxy.name" . }}-injector
     chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}

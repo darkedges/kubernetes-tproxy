@@ -1,5 +1,5 @@
 dockerfiles_folder = docker
-docker_repo = horodchukanton
+docker_repo = darkedges
 docker_image_prefix = tproxy
 
 firewall_init_image_name = ${docker_image_prefix}-firewall

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -e
+set -eux
 
 usage() {
     cat <<EOF
@@ -46,9 +46,12 @@ while [[ $# -gt 0 ]]; do
     shift
 done
 
-[ -z "${service}" ] && service=tproxy-sidecar-injector-webhook-svc
-[ -z "${secret}" ] && secret=tproxy-sidecar-injector-webhook-certs
-[ -z "${namespace}" ] && namespace=injector
+# [ -z "${service}" ] && service=tproxy-sidecar-injector-webhook-svc
+# [ -z "${secret}" ] && secret=tproxy-sidecar-injector-webhook-certs
+# [ -z "${namespace}" ] && namespace=injector
+service=${service:-"tproxy-sidecar-injector-webhook-svc"}
+secret=${secret:-"tproxy-sidecar-injector-webhook-certs"}
+namespace=${namespace:-"injector"}
 
 if [ ! -x "$(command -v openssl)" ]; then
     echo "openssl not found"
@@ -76,24 +79,26 @@ DNS.3 = ${service}.${namespace}.svc
 EOF
 
 openssl genrsa -out "${tmpdir}"/server-key.pem 2048
-openssl req -new -key "${tmpdir}"/server-key.pem -subj "/CN=${service}.${namespace}.svc" -out "${tmpdir}"/server.csr -config "${tmpdir}"/csr.conf
+openssl req -new -key "${tmpdir}"/server-key.pem -subj "/CN=system:node:${service}.${namespace}.svc;/O=system:nodes" -out "${tmpdir}"/server.csr -config "${tmpdir}"/csr.conf
 
 # clean-up any previously created CSR for our service. Ignore errors if not present.
 kubectl delete csr ${csrName} 2>/dev/null || true
 
 # create  server cert/key CSR and  send to k8s API
 cat <<EOF | kubectl create -f -
-apiVersion: certificates.k8s.io/v1beta1
+apiVersion: certificates.k8s.io/v1
 kind: CertificateSigningRequest
 metadata:
   name: ${csrName}
 spec:
+  signerName: kubernetes.io/kubelet-serving
+  expirationSeconds: 86400  # one day
   groups:
   - system:authenticated
   request: $(< "${tmpdir}"/server.csr base64 | tr -d '\n')
   usages:
-  - digital signature
   - key encipherment
+  - digital signature
   - server auth
 EOF
 

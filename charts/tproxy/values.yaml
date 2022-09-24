@@ -1,5 +1,5 @@
 images:
-  tproxyRegistry: docker.io/horodchukanton
+  tproxyRegistry: docker.io/darkedges
   pullPolicy: IfNotPresent
   mitmproxy: tproxy-mitmproxy:latest
   initFirewall: tproxy-firewall:latest

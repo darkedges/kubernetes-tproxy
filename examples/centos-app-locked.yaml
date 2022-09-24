@@ -2,8 +2,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: centos-app-locked
-  annotations:
-    "webhook-sidecar-injector-webhook.me/inject": "true"
 spec:
   replicas: 1
   selector:
@@ -11,6 +9,8 @@ spec:
       app: centos-app
   template:
     metadata:
+      annotations:
+        "sidecar-injector-webhook.webhook.me/inject": enabled
       labels:
         app: centos-app
         variant: locked
