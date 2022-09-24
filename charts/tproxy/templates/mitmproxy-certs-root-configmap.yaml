@@ -11,6 +11,5 @@ metadata:
     component: tproxy
 data:
   root-certs.crt: |-
-    {{ range .Files.Lines "config/root-certs.crt" }}
-    {{ . }}{{ end }}{{ range .Files.Lines "certs/mitmproxy-ca-cert.cer" }}
+    {{ range .Files.Lines "certs/mitmproxy-ca-cert.cer" }}
     {{ . }}{{ end }}

@@ -67,7 +67,7 @@ data:
           - name: app-data
             mountPath: /opt/mitmproxy-scripts/
           - name: ca-certs-fedora
-            mountPath: /etc/pki/tls/certs/
+            mountPath: /etc/pki/ca-trust/extracted/pem/
           - name: ca-certs-debian
             mountPath: /etc/ssl/certs/
           - name: ca-certs-debian
@@ -80,6 +80,14 @@ data:
           requests:
             cpu: 100m
             memory: 64Mi
+    volumeMounts:
+      - name: ca-certs-fedora
+        mountPath: /etc/pki/tls/certs/
+      - name: ca-certs-debian
+        mountPath: /etc/ssl/certs/
+      - name: ca-certs-debian
+        # Adding the cert to the /extra dir preserves it if update-ca-certificates is run after init.
+        mountPath: /usr/local/share/ca-certificates/extra/
     volumes:
       - name: ca-certs-fedora
         configMap:
